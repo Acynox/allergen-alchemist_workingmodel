@@ -1,0 +1,780 @@
+/* ============================================================================
+   ALLERGEN ALCHEMIST - MODERN LIVELY THEME
+   Rich, vibrant, and professional light mode
+   Palette: White, Indigo/Violet Gradients, Soft Gray
+   ============================================================================ */
+
+:root {
+    /* Rich Color Palette */
+    --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    /* Indigo to Violet */
+    --secondary-gradient: linear-gradient(135deg, #0ea5e9 0%, #22c55e 100%);
+    /* Sky to Emerald */
+    --accent-glow: linear-gradient(135deg, #f43f5e 0%, #f97316 100%);
+    /* Rose to Orange */
+
+    /* Solid Colors for Text/UI */
+    --primary-color: #4f46e5;
+    --text-main: #111827;
+    /* Deep gray, almost black */
+    --text-muted: #6b7280;
+    /* Medium gray */
+    --text-light: #9ca3af;
+
+    /* Backgrounds */
+    --bg-body: #f9fafb;
+    /* Cool light gray */
+    --bg-card: #ffffff;
+    --bg-surface: #f3f4f6;
+
+    /* Functional Colors */
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+
+    /* Elevation / Depth */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    --shadow-color: 0 10px 40px -10px rgba(79, 70, 229, 0.3);
+    /* Colored shadow for primary elements */
+
+    /* Spacing & Layout */
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+    --radius-pill: 9999px;
+
+    /* Animation */
+    --transition-bounce: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ============================================================================
+   BASE & TYPOGRAPHY
+   ============================================================================ */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--bg-body);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: var(--text-main);
+    line-height: 1.6;
+    overflow-x: hidden;
+    min-height: 100vh;
+    font-size: 16px;
+}
+
+/* Decorative Background Blobs - Adds "Liveliness" */
+body::before {
+    content: '';
+    position: fixed;
+    top: -20%;
+    right: -10%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(124, 58, 237, 0.15) 0%, rgba(255, 255, 255, 0) 70%);
+    z-index: -1;
+    pointer-events: none;
+    animation: pulseBlob 10s ease-in-out infinite alternate;
+}
+
+body::after {
+    content: '';
+    position: fixed;
+    bottom: -10%;
+    left: -10%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(14, 165, 233, 0.15) 0%, rgba(255, 255, 255, 0) 70%);
+    z-index: -1;
+    pointer-events: none;
+    animation: pulseBlob 15s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes pulseBlob {
+    0% {
+        transform: scale(1);
+    }
+
+    100% {
+        transform: scale(1.1);
+    }
+}
+
+.app-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+/* ============================================================================
+   HEADER - RICH & BOLD
+   ============================================================================ */
+
+header {
+    text-align: center;
+    margin-bottom: 60px;
+    padding: 40px 0;
+    position: relative;
+}
+
+.logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+    background: white;
+    padding: 12px 24px;
+    border-radius: var(--radius-pill);
+    box-shadow: var(--shadow-md);
+    transform: rotate(-2deg);
+    /* Playful tilt */
+    transition: transform var(--transition-bounce);
+}
+
+.logo:hover {
+    transform: rotate(0deg) scale(1.05);
+    box-shadow: var(--shadow-xl);
+}
+
+.logo i {
+    font-size: 28px;
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    background: var(--text-main);
+    /* Fallback */
+    background: linear-gradient(to right, #111827, #4b5563);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-top: 10px;
+}
+
+.subtitle {
+    font-size: 1.25rem;
+    color: var(--text-muted);
+    font-weight: 400;
+    max-width: 600px;
+    margin: 10px auto 0;
+}
+
+/* ============================================================================
+   TABS - FLOATING PILLS
+   ============================================================================ */
+
+.tabs {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 40px;
+    background: white;
+    padding: 8px;
+    border-radius: var(--radius-pill);
+    box-shadow: var(--shadow-md);
+    width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.tab-btn {
+    padding: 12px 24px;
+    border-radius: var(--radius-pill);
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all var(--transition-smooth);
+}
+
+.tab-btn:hover {
+    background: var(--bg-surface);
+    color: var(--text-main);
+}
+
+.tab-btn.active {
+    background: var(--primary-gradient);
+    color: white;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+}
+
+/* ============================================================================
+   CARDS - RICH DEPTH
+   ============================================================================ */
+
+.search-card,
+.results-container {
+    background: var(--bg-card);
+    border-radius: var(--radius-xl);
+    padding: 40px;
+    box-shadow: var(--shadow-xl);
+    border: 1px solid rgba(0, 0, 0, 0.03);
+    margin-bottom: 40px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+/* Top colored accent line */
+.search-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: var(--primary-gradient);
+}
+
+/* Input Fields */
+.input-group label {
+    display: block;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+input[type="text"] {
+    width: 100%;
+    padding: 16px 20px;
+    font-size: 1.1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: var(--radius-lg);
+    background: var(--bg-body);
+    transition: all var(--transition-smooth);
+    color: var(--text-main);
+}
+
+input[type="text"]:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background: white;
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+}
+
+/* Checkboxes - Custom & Colorful */
+.allergen-checkboxes {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+    margin-top: 15px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: var(--bg-surface);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    font-weight: 500;
+    transition: all var(--transition-bounce);
+    border: 2px solid transparent;
+}
+
+.checkbox-label:hover {
+    background: white;
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.checkbox-label:has(input:checked) {
+    background: #eff6ff;
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+input[type="checkbox"] {
+    accent-color: var(--primary-color);
+    width: 18px;
+    height: 18px;
+}
+
+/* Primary Button - The "Hero" Action */
+.primary-btn {
+    width: 100%;
+    padding: 18px;
+    background: var(--primary-gradient);
+    color: white;
+    border: none;
+    border-radius: var(--radius-lg);
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: var(--shadow-color);
+    transition: all var(--transition-bounce);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.primary-btn:hover {
+    transform: translateY(-3px) scale(1.01);
+    box-shadow: 0 20px 40px -10px rgba(79, 70, 229, 0.5);
+}
+
+.primary-btn:active {
+    transform: scale(0.98);
+}
+
+/* ============================================================================
+   RESULTS & DATA DISPLAY
+   ============================================================================ */
+
+h2 {
+    font-size: 1.8rem;
+    color: var(--text-main);
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #f3f4f6;
+}
+
+/* Warning Cards (Issues) */
+.recipe-issue-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    margin-bottom: 20px;
+    border: 1px solid #fee2e2;
+    box-shadow: var(--shadow-sm);
+    border-left: 6px solid var(--danger);
+    transition: transform var(--transition-smooth);
+}
+
+.recipe-issue-card:hover {
+    transform: translateX(5px);
+    box-shadow: var(--shadow-md);
+}
+
+.issue-header h3 {
+    color: var(--danger);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.2rem;
+}
+
+/* Substitutes List */
+.substitute-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    background: #f8fafc;
+    border-radius: 12px;
+    margin-top: 10px;
+    transition: background 0.2s;
+}
+
+.substitute-item:hover {
+    background: #f1f5f9;
+}
+
+.substitute-name {
+    font-weight: 700;
+    color: var(--text-main);
+    font-size: 1.05rem;
+}
+
+.score-badge {
+    background: #dcfce7;
+    color: #166534;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.secondary-btn {
+    background: white;
+    border: 2px solid #e5e7eb;
+    color: var(--text-main);
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+.secondary-btn:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    transform: translateY(-1px);
+}
+
+/* ============================================================================
+   DIET PLAN - GRID CARDS
+   ============================================================================ */
+
+#diet-plan-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
+}
+
+.day-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    box-shadow: var(--shadow-md);
+    border: 1px solid rgba(0, 0, 0, 0.03);
+    transition: all var(--transition-bounce);
+    position: relative;
+    overflow: hidden;
+}
+
+.day-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-xl);
+}
+
+.day-card h3 {
+    color: var(--primary-color);
+    font-size: 1.4rem;
+    margin-bottom: 20px;
+    font-weight: 800;
+}
+
+/* Meal Sections */
+.meal-section {
+    padding: 12px;
+    background: #f9fafb;
+    border-radius: 10px;
+    margin-bottom: 12px;
+}
+
+.meal-section h4 {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 4px;
+}
+
+.meal-section p {
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+
+/* ============================================================================
+   NUTRITION - COLORFUL STATS
+   ============================================================================ */
+
+#nutrition-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 20px;
+}
+
+.nutrition-card {
+    background: white;
+    border-radius: var(--radius-xl);
+    padding: 30px 20px;
+    text-align: center;
+    box-shadow: var(--shadow-md);
+    transition: all var(--transition-bounce);
+    border: 1px solid rgba(0, 0, 0, 0.03);
+}
+
+.nutrition-card:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: var(--shadow-lg);
+}
+
+.nutrition-card .icon {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    display: inline-block;
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+}
+
+.nutrition-card .value {
+    display: block;
+    font-size: 2rem;
+    font-weight: 800;
+    background: var(--secondary-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 5px;
+}
+
+.nutrition-card .label {
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+}
+
+/* ============================================================================
+   MODAL - CLEAN & FOCUSED
+   ============================================================================ */
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(17, 24, 39, 0.7);
+    /* Dark backdrop */
+    backdrop-filter: blur(8px);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    border-radius: var(--radius-xl);
+    padding: 40px;
+    width: 600px;
+    max-width: 90%;
+    box-shadow: var(--shadow-2xl);
+    animation: slideUp 0.4s var(--transition-bounce);
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-header {
+    border-bottom: 2px solid #f3f4f6;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.molecule-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.molecule-tag {
+    background: #e0e7ff;
+    color: #4338ca;
+    padding: 8px 16px;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: transform 0.2s;
+}
+
+.molecule-tag:hover {
+    transform: scale(1.1);
+    background: #4f46e5;
+    color: white;
+}
+
+.close-btn {
+    background: #f3f4f6;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: var(--text-muted);
+    transition: all 0.2s;
+}
+
+.close-btn:hover {
+    background: var(--danger);
+    color: white;
+    transform: rotate(90deg);
+}
+
+/* ============================================================================
+   RESPONSIVE
+   ============================================================================ */
+@media (max-width: 768px) {
+    header {
+        padding: 20px 0;
+    }
+
+    h1 {
+        font-size: 2rem;
+    }
+
+    .tabs {
+        flex-wrap: wrap;
+        width: 100%;
+        border-radius: var(--radius-lg);
+    }
+
+    .primary-btn {
+        font-size: 1rem;
+        padding: 15px;
+    }
+}
+
+/* Utility */
+.hidden {
+    display: none !important;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #e5e7eb;
+    border-top-color: var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* ============================================================================
+   ANIMATIONS & KEYFRAMES
+   ============================================================================ */
+
+@keyframes contentFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Apply animations to dynamic content */
+.tab-content.active {
+    animation: contentFadeIn 0.5s var(--transition-bounce);
+}
+
+.results-container,
+.day-card,
+.nutrition-card {
+    animation: fadeInUp 0.5s var(--transition-bounce);
+    animation-fill-mode: both;
+}
+
+/* Staggered delays for grid items */
+.day-card:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.day-card:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.day-card:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.day-card:nth-child(4) {
+    animation-delay: 0.4s;
+}
+
+.day-card:nth-child(5) {
+    animation-delay: 0.5s;
+}
+
+.day-card:nth-child(6) {
+    animation-delay: 0.6s;
+}
+
+.day-card:nth-child(7) {
+    animation-delay: 0.7s;
+}
+
+.nutrition-card:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.nutrition-card:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.nutrition-card:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.nutrition-card:nth-child(4) {
+    animation-delay: 0.4s;
+}
+
+.nutrition-card:nth-child(5) {
+    animation-delay: 0.5s;
+}
+
+.nutrition-card:nth-child(6) {
+    animation-delay: 0.6s;
+}
+
+/* ============================================================================
+   UTILITY - CRITICAL
+   ============================================================================ */
+.hidden {
+    display: none !important;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #e5e7eb;
+    border-top-color: var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}

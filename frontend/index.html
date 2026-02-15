@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Allergen Alchemist</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <header>
+            <div class="logo">
+                <i class="fa-solid fa-flask"></i>
+                <h1>Allergen Alchemist</h1>
+            </div>
+            <p class="subtitle">Molecular analysis for safer, smarter recipe alternatives</p>
+        </header>
+
+        <main>
+            <!-- Tab Navigation -->
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="recipe">Recipe Analysis</button>
+                <button class="tab-btn" data-tab="diet">Weekly Diet Plan</button>
+                <button class="tab-btn" data-tab="nutrition">Recipe Nutrition</button>
+            </div>
+
+            <!-- Recipe Analysis Tab -->
+            <div id="tab-recipe" class="tab-content active">
+                <!-- Floating decorative particles -->
+                <div class="floating-particle" style="top: 15%; left: 85%;"></div>
+                <div class="floating-particle" style="top: 70%; left: 10%;"></div>
+                <div class="floating-particle" style="top: 35%; left: 5%;"></div>
+
+                <div class="search-card">
+                    <div class="input-group">
+                        <label for="recipe-input">Recipe Name</label>
+                        <div class="select-wrapper">
+                            <i class="fa-solid fa-utensils"></i>
+                            <input type="text" id="recipe-input" placeholder="e.g. Apple Pie">
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Your Allergies (Select multiple)</label>
+                        <div id="allergen-checkboxes" class="checkbox-group">
+                            <!-- Checkboxes injected here -->
+                        </div>
+                    </div>
+
+                    <button id="analyze-recipe-btn" class="primary-btn">
+                        <span>Analyze Recipe</span>
+                        <i class="fa-solid fa-magnifying-glass-chart"></i>
+                    </button>
+                </div>
+
+                <div id="loading-indicator" class="hidden">
+                    <div class="spinner"></div>
+                    <p>Analyzing molecular profiles...</p>
+                </div>
+
+                <div id="error-message" class="hidden">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <p id="error-text">Something went wrong.</p>
+                </div>
+
+                <div id="recipe-results-section" class="hidden">
+                    <h2 id="recipe-title-display">Recipe Results</h2>
+                    <div id="recipe-issues-list"></div>
+                </div>
+
+                <!-- Info Card -->
+                <div class="info-card" style="max-width: 600px; margin: 2rem auto;">
+                    <h3><i class="fa-solid fa-flask"></i> How It Works</h3>
+                    <p>Our molecular analysis compares flavor compounds between ingredients to find the best
+                        substitutes. The "Molecular Synergy" feature shows which chemical compounds are shared between
+                        the original ingredient and its replacement, explaining why they taste similar!</p>
+                </div>
+            </div>
+
+            <!-- Weekly Diet Plan Tab -->
+            <div id="tab-diet" class="tab-content hidden">
+                <!-- Floating decorative particles -->
+                <div class="floating-particle" style="top: 25%; left: 15%;"></div>
+                <div class="floating-particle" style="top: 65%; left: 85%;"></div>
+                <div class="floating-particle" style="top: 45%; left: 90%;"></div>
+
+                <div class="search-card">
+                    <div class="input-group">
+                        <label>Your Allergies (Select multiple)</label>
+                        <div id="diet-allergen-checkboxes" class="checkbox-group">
+                            <!-- Checkboxes injected here -->
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Dietary Preference</label>
+                        <div class="select-wrapper">
+                            <i class="fa-solid fa-leaf"></i>
+                            <select id="diet-preference">
+                                <option value="both">Both Veg & Non-Veg</option>
+                                <option value="veg">Vegetarian Only</option>
+                                <option value="non-veg">Non-Vegetarian Only</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button id="generate-diet-btn" class="primary-btn">
+                        <span>Generate Weekly Plan</span>
+                        <i class="fa-solid fa-calendar-days"></i>
+                    </button>
+                </div>
+
+                <div id="diet-loading" class="hidden">
+                    <div class="spinner"></div>
+                    <p>Creating your personalized diet plan...</p>
+                </div>
+
+                <div id="diet-error" class="hidden">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <p id="diet-error-text">Something went wrong.</p>
+                </div>
+
+                <div id="diet-results" class="hidden">
+                    <h2>Your Weekly Diet Plan</h2>
+                    <div id="diet-plan-grid"></div>
+                </div>
+
+                <!-- Info Card -->
+                <div class="info-card" style="max-width: 600px; margin: 2rem auto;">
+                    <h3><i class="fa-solid fa-calendar-check"></i> Personalized Planning</h3>
+                    <p>Your weekly diet plan is customized based on your allergen profile and dietary preferences. Each
+                        meal is carefully selected to avoid your allergens while maintaining variety and nutrition
+                        throughout the week.</p>
+                </div>
+            </div>
+
+            <!-- Recipe Nutrition Tab -->
+            <div id="tab-nutrition" class="tab-content hidden">
+                <!-- Floating decorative particles -->
+                <div class="floating-particle" style="top: 20%; left: 20%;"></div>
+                <div class="floating-particle" style="top: 55%; left: 75%;"></div>
+                <div class="floating-particle" style="top: 80%; left: 15%;"></div>
+
+                <div class="search-card">
+                    <div class="input-group">
+                        <label for="nutrition-recipe-input">Recipe Name</label>
+                        <div class="select-wrapper">
+                            <i class="fa-solid fa-utensils"></i>
+                            <input type="text" id="nutrition-recipe-input" placeholder="e.g. Chicken Curry">
+                        </div>
+                    </div>
+
+                    <button id="analyze-nutrition-btn" class="primary-btn">
+                        <span>Get Nutrition Info</span>
+                        <i class="fa-solid fa-chart-pie"></i>
+                    </button>
+                </div>
+
+                <div id="nutrition-loading" class="hidden">
+                    <div class="spinner"></div>
+                    <p>Calculating nutritional values...</p>
+                </div>
+
+                <div id="nutrition-error" class="hidden">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <p id="nutrition-error-text">Something went wrong.</p>
+                </div>
+
+                <div id="nutrition-results" class="hidden">
+                    <h2 id="nutrition-recipe-title">Nutritional Information</h2>
+                    <div id="nutrition-cards"></div>
+                </div>
+
+                <!-- Info Card -->
+                <div class="info-card" style="max-width: 600px; margin: 2rem auto;">
+                    <h3><i class="fa-solid fa-chart-pie"></i> Nutrition Insights</h3>
+                    <p>Nutritional values are calculated based on the recipe's ingredients from our database.
+                        Understanding macronutrients (protein, carbs, fat) and micronutrients helps you make informed
+                        dietary choices and maintain a balanced diet.</p>
+                </div>
+            </div>
+
+            <!-- Molecule Synergy Modal -->
+            <div id="molecule-modal" class="modal hidden">
+                <div class="modal-content">
+                    <span class="close-modal">&times;</span>
+                    <h3><i class="fa-solid fa-atom"></i> Molecular Synergy</h3>
+                    <p>Shared flavor compounds explaining this match:</p>
+                    <div id="molecule-list" class="molecule-tags"></div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
