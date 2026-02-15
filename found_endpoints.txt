@@ -1,0 +1,23 @@
+{{baseUrl}}/recipe2-api/recipe/recipesinfo?page=1&limit=10
+{{baseUrl}}/recipe2-api/recipe/recipeofday
+{{baseUrl}}/recipe2-api/recipe/recipe-day/with-ingredients-categories?excludeIngredients=water,flour&excludeCategories=Dairy
+{{baseUrl}}/recipe2-api/recipe-nutri/nutritioninfo?page=1&limit=10
+{{baseUrl}}/recipe2-api/recipe-micronutri/micronutritioninfo?page=1&limit=10
+{{baseUrl}}/recipe2-api/recipes/range?field=total_time&min=30&max=60&page=1&limit=10
+{{baseUrl}}/recipe2-api/recipes_cuisine/cuisine/:region?continent=Asian&subRegion=Indian&field=total_time&min=30&max=60&page=1&page_size=10
+{{baseUrl}}/recipe2-api/recipe-bytitle/recipeByTitle?title=Chicken
+{{baseUrl}}/recipe2-api/recipes-calories/calories?minCalories=100&maxCalories=500&limit=10
+{{baseUrl}}/recipe2-api/recipe/region-diet/region-diet?region=Scandinavian&diet=pescetarian&limit=10
+{{baseUrl}}/recipe2-api/recipe-diet/recipe-diet?diet=vegan&limit=10
+{{baseUrl}}/recipe2-api/recipe-carbo/recipes-by-carbs?minCarbs=10&maxCarbs=50&limit=10
+{{baseUrl}}/recipe2-api/instructions/:recipe_id
+{{baseUrl}}/recipe2-api/ingredients/flavor/:flavor?page=1&limit=10
+{{baseUrl}}/recipe2-api/byutensils/utensils?utensils=frypan&page=1&limit=10
+{{baseUrl}}/recipe2-api/recipes-method/:method?page=1
+{{baseUrl}}/recipe2-api/byenergy/energy?minEnergy=100&maxEnergy=800&page=1&limit=10
+{{baseUrl}}/recipe2-api/recipebyingredient/by-ingredients-categories-title?includeIngredients=lemon juice&excludeIngredients=butter&includeCategories=Additive&excludeCategories=Dairy&title=Shepherd's Pie&page=1&limit=10
+{{baseUrl}}/recipe2-api/category/?includeDietrxCategories=Vegetable&excludeDietrxCategories=Fish&page=1&limit=10
+{{baseUrl}}/recipe2-api/search-recipe/:id
+{{baseUrl}}/recipe2-api/protein/protein-range?min=10&max=50&page=1&limit=10
+{{baseUrl}}/recipe2-api/recipe-Day-category/?excludeDietrxCategories=Additive,Bakery&page=1&limit=10
+{{baseUrl}}/recipe2-api/mealplan/meal-plan?diet_type=vegan&days=7&calories_per_day={min: 1500,max: 2200}&exclude_ingredients=steak, sugar

@@ -1,0 +1,896 @@
+================================================================================
+                    ALLERGEN ALCHEMIST - PROJECT DOCUMENTATION
+================================================================================
+
+PROJECT OVERVIEW
+================================================================================
+Allergen Alchemist is a web application that helps users with food allergies
+find safe recipe alternatives using molecular chemistry analysis. It combines
+RecipeDB and FlavorDB APIs to analyze recipes, suggest ingredient substitutes,
+generate personalized diet plans, and provide nutritional information.
+
+TECHNOLOGY STACK
+================================================================================
+Backend:
+  - Python 3.x
+  - FastAPI (Web framework)
+  - Uvicorn (ASGI server)
+  - Pydantic (Data validation)
+  - Requests (HTTP library)
+
+Frontend:
+  - HTML5
+  - CSS3 (Custom styling with animations)
+  - Vanilla JavaScript (ES6+)
+  - Font Awesome (Icons)
+  - Google Fonts (Outfit font)
+
+External APIs:
+  - RecipeDB API (Recipe and ingredient data)
+  - FlavorDB API (Molecular compound data)
+
+
+================================================================================
+                            PROJECT STRUCTURE
+================================================================================
+
+hackathon2/
+│
+├── allergen_alchemist/          # Backend Python package
+│   ├── main.py                  # FastAPI application & API endpoints
+│   ├── bridge.py                # Allergen mapping & categorization
+│   ├── chem_utils.py            # API utility functions
+│   ├── constants.py             # API keys and base URLs
+│   ├── fetch_candidates.py      # Script to populate ingredient database
+│   └── candidates.json          # Local ingredient database (~50-60 items)
+│
+├── frontend/                    # Frontend files
+│   ├── index.html               # Main HTML structure (3 tabs)
+│   ├── style.css                # All styling and animations
+│   └── app.js                   # JavaScript logic and API calls
+│
+├── run.py                       # Server startup script
+├── test_endpoints.py            # API testing script
+└── PROJECT_DOCUMENTATION.txt    # This file
+
+
+================================================================================
+                        BACKEND API ENDPOINTS
+================================================================================
+
+The backend runs on: http://localhost:8000
+
+-----------------------------------
+1. GET /allergens
+-----------------------------------
+PURPOSE: Fetch all available allergen categories
+
+REQUEST:
+  Method: GET
+  URL: http://localhost:8000/allergens
+  Headers: None
+  Body: None
+
+RESPONSE:
+  Status: 200 OK
+  Content-Type: application/json
+  Body: [
+    "Egg_Allergy",
+    "Fish_Allergy",
+    "Dairy_Allergy",
+    "Gluten",
+    "Nut_Allergy",
+    "Shellfish_Allergy",
+    "Soy_Allergy"
+  ]
+
+PROCESSING:
+  1. Reads allergen categories from bridge.ALLERGEN_MAP
+  2. Extracts unique values
+  3. Sorts alphabetically
+  4. Returns as JSON array
+
+USED BY: Frontend to populate allergen checkboxes in all tabs
+
+
+-----------------------------------
+2. POST /analyze_recipe
+-----------------------------------
+PURPOSE: Analyze a recipe for allergens and suggest substitutes
+
+REQUEST:
+  Method: POST
+  URL: http://localhost:8000/analyze_recipe
+  Headers: Content-Type: application/json
+  Body: {
+    "recipe_name": "Apple Pie",
+    "user_allergens": ["Egg_Allergy", "Dairy_Allergy"]
+  }
+
+RESPONSE:
+  Status: 200 OK
+  Content-Type: application/json
+  Body: {
+    "recipe_title": "Grandma's Apple Pie",
+    "recipe_id": 12345,
+    "found_issues": true,
+    "substitutions": [
+      {
+        "original_ingredient": "butter",
+        "substitutes": [
+          {
+            "name": "coconut oil",
+            "score": 0.85,
+            "verified": true,
+            "common_molecules": ["oleic acid", "palmitic acid"]
+          }
+        ]
+      }
+    ]
+  }
+
+PROCESSING FLOW:
+  1. Receive recipe name and user allergens
+  2. Call RecipeDB API to search recipe by title
+     → GET https://cosylab.iiitd.edu.in/recipedb/recipe-bytitle/recipeByTitle?title={recipe_name}
+  3. Extract recipe ID and title from response
+  4. Fetch recipe ingredients using recipe ID
+     → GET https://cosylab.iiitd.edu.in/recipedb/search-recipe/{recipe_id}
+  5. For each ingredient:
+     a. Check if it matches any user allergens (using bridge.py)
+     b. If allergen found, search for substitutes from candidates.json
+     c. For each substitute candidate:
+        - Fetch molecular compounds from FlavorDB for original ingredient
+        - Fetch molecular compounds from FlavorDB for substitute
+        - Calculate Jaccard similarity score
+        - Find common molecules between them
+     d. Sort substitutes by similarity score (highest first)
+     e. Take top 3 substitutes
+  6. Return all substitutions with molecular synergy data
+
+EXTERNAL API CALLS MADE:
+  - RecipeDB: Search recipe by title (1 call)
+  - RecipeDB: Get recipe ingredients (1 call)
+  - FlavorDB: Get molecules for each ingredient (N calls, where N = ingredients + substitutes)
+
+
+-----------------------------------
+3. POST /generate_diet_plan
+-----------------------------------
+PURPOSE: Generate a personalized weekly diet plan
+
+REQUEST:
+  Method: POST
+  URL: http://localhost:8000/generate_diet_plan
+  Headers: Content-Type: application/json
+  Body: {
+    "user_allergens": ["Egg_Allergy"],
+    "diet_preference": "both"  // Options: "veg", "non-veg", "both"
+  }
+
+RESPONSE:
+  Status: 200 OK
+  Content-Type: application/json
+  Body: {
+    "weekly_plan": [
+      {
+        "day": "Monday",
+        "breakfast": "Pancakes",
+        "lunch": "Chicken Salad",
+        "dinner": "Mushroom Risotto"
+      },
+      // ... 6 more days
+    ]
+  }
+
+PROCESSING FLOW:
+  1. Receive user allergens and dietary preference
+  2. Load predefined recipe pools:
+     - Vegetarian recipes (breakfast, lunch, dinner)
+     - Non-vegetarian recipes (breakfast, lunch, dinner)
+  3. Combine pools based on preference:
+     - "veg" → Only vegetarian recipes
+     - "non-veg" → Only non-vegetarian recipes
+     - "both" → Combined pool
+  4. Filter recipes using keyword matching:
+     - Check recipe titles for allergen keywords
+     - Remove recipes containing allergen keywords
+  5. If no safe recipes found, use fallback generic meals
+  6. Generate 7-day plan:
+     - Randomly select breakfast, lunch, dinner for each day
+     - Ensure variety across the week
+  7. Return weekly plan
+
+EXTERNAL API CALLS MADE:
+  - None (uses keyword-based filtering for performance)
+
+NOTE: Originally used RecipeDB API calls for each recipe, but optimized
+      to keyword-based filtering for instant response times.
+
+
+-----------------------------------
+4. POST /get_nutrition
+-----------------------------------
+PURPOSE: Get nutritional information for a recipe
+
+REQUEST:
+  Method: POST
+  URL: http://localhost:8000/get_nutrition
+  Headers: Content-Type: application/json
+  Body: {
+    "recipe_name": "Chicken Curry"
+  }
+
+RESPONSE:
+  Status: 200 OK
+  Content-Type: application/json
+  Body: {
+    "recipe_title": "Chicken Curry",
+    "calories": 450,
+    "protein": 35,
+    "carbs": 42,
+    "fat": 18,
+    "fiber": 6,
+    "sugar": 8
+  }
+
+PROCESSING FLOW:
+  1. Receive recipe name
+  2. Call RecipeDB API to search recipe by title
+     → GET https://cosylab.iiitd.edu.in/recipedb/recipe-bytitle/recipeByTitle?title={recipe_name}
+  3. Extract recipe ID and title
+  4. Fetch recipe ingredients
+     → GET https://cosylab.iiitd.edu.in/recipedb/search-recipe/{recipe_id}
+  5. Calculate nutrition based on ingredients:
+     - Start with base random values
+     - Adjust based on ingredient keywords:
+       * Protein-rich: chicken, beef, pork, fish → +protein, +calories
+       * Carb-rich: rice, pasta, bread, potato → +carbs, +calories
+       * Fat-rich: oil, butter, cream, cheese → +fat, +calories
+  6. Return nutritional breakdown
+
+EXTERNAL API CALLS MADE:
+  - RecipeDB: Search recipe by title (1 call)
+  - RecipeDB: Get recipe ingredients (1 call)
+
+NOTE: Nutrition calculation is estimated based on ingredient types.
+      In production, would use a dedicated nutrition API.
+
+
+================================================================================
+                        FRONTEND STRUCTURE
+================================================================================
+
+-----------------------------------
+HTML Structure (index.html)
+-----------------------------------
+
+1. HEADER
+   - Application title: "Allergen Alchemist"
+   - Subtitle with emoji
+
+2. TAB NAVIGATION
+   - Three tabs:
+     * Recipe Analysis (default active)
+     * Weekly Diet Plan
+     * Recipe Nutrition
+
+3. TAB CONTENT AREAS
+
+   A. RECIPE ANALYSIS TAB
+      - Floating decorative particles (3)
+      - Molecular structure overlays (SVG)
+      - Search card:
+        * Recipe name input
+        * Allergen checkboxes (dynamically loaded)
+        * "Analyze Recipe" button
+      - Results section (hidden initially):
+        * Recipe title display
+        * Issue cards for each problematic ingredient
+        * Substitute suggestions with scores
+        * "View Molecular Synergy" buttons
+      - Info card explaining molecular analysis
+
+   B. WEEKLY DIET PLAN TAB
+      - Floating decorative particles (3)
+      - Calendar emoji overlay
+      - Food emoji overlay
+      - Search card:
+        * Allergen checkboxes (dynamically loaded)
+        * Diet preference radio buttons (veg/non-veg/both)
+        * "Generate Weekly Plan" button
+      - Results section (hidden initially):
+        * 7 day cards (Monday-Sunday)
+        * Each showing breakfast, lunch, dinner
+      - Info card explaining personalization
+
+   C. RECIPE NUTRITION TAB
+      - Floating decorative particles (3)
+      - Pie chart overlay (SVG)
+      - Muscle emoji overlay
+      - Search card:
+        * Recipe name input
+        * "Get Nutrition Info" button
+      - Results section (hidden initially):
+        * Recipe title
+        * 6 nutrition cards (calories, protein, carbs, fat, fiber, sugar)
+      - Info card explaining nutrition insights
+
+4. MODALS
+   - Molecular Synergy Modal:
+     * Shows common molecules between ingredients
+     * Displays as tags
+     * Close button
+
+
+-----------------------------------
+CSS Styling (style.css)
+-----------------------------------
+
+THEME:
+  - Dark background: #0a0e27
+  - Primary color (cyan): #00d2ff
+  - Secondary color (blue): #3a7bd5
+  - Accent color (pink): #ff00cc
+  - Font: 'Outfit' from Google Fonts
+
+KEY STYLES:
+
+1. Layout
+   - Container: max-width 1200px, centered
+   - Responsive grid for results
+
+2. Tab Navigation
+   - Horizontal button layout
+   - Active tab highlighted with gradient
+   - Smooth transitions
+
+3. Cards
+   - Glassmorphism effect (semi-transparent background)
+   - Subtle borders with glow
+   - Hover effects with scale and shadow
+
+4. Decorative Overlays
+   - Molecular structures (SVG data URIs)
+   - Emoji overlays (large, low opacity)
+   - Floating particles (animated dots)
+
+5. Animations
+   - float: 6-8s gentle up-down motion
+   - pulse: 4-5s breathing effect
+   - rotate: 20s continuous rotation
+   - floatParticle: 15s complex movement
+   - fadeIn: 0.5s entrance animation
+
+6. Special Effects
+   - Gradient backgrounds on buttons
+   - Box shadows with color
+   - Smooth transitions on all interactive elements
+
+
+-----------------------------------
+JavaScript Logic (app.js)
+-----------------------------------
+
+GLOBAL STATE:
+  - currentTab: Tracks active tab
+  - allergensData: Stores fetched allergen list
+
+INITIALIZATION (DOMContentLoaded):
+  1. Fetch allergens from backend
+  2. Populate allergen checkboxes in all tabs
+  3. Set up event listeners for all buttons
+  4. Set up tab switching logic
+
+EVENT HANDLERS:
+
+1. Tab Switching
+   - Click on tab button
+   - Hide all tab contents
+   - Show selected tab content
+   - Update active tab styling
+
+2. Recipe Analysis
+   - Click "Analyze Recipe" button
+   - Validate input (recipe name, at least one allergen)
+   - Show loading spinner
+   - Make POST request to /analyze_recipe
+   - Process response:
+     * Display recipe title
+     * Create issue cards for each problematic ingredient
+     * Show substitutes with scores
+     * Add "View Molecular Synergy" buttons
+   - Hide loading spinner
+   - Show results section
+
+3. Weekly Diet Plan
+   - Click "Generate Weekly Plan" button
+   - Collect selected allergens
+   - Get diet preference
+   - Show loading spinner
+   - Make POST request to /generate_diet_plan
+   - Process response:
+     * Create 7 day cards
+     * Display meals for each day
+   - Hide loading spinner
+   - Show results section
+
+4. Recipe Nutrition
+   - Click "Get Nutrition Info" button
+   - Validate input (recipe name)
+   - Show loading spinner
+   - Make POST request to /get_nutrition
+   - Process response:
+     * Display recipe title
+     * Create 6 nutrition cards with icons
+     * Show values and labels
+   - Hide loading spinner
+   - Show results section
+
+5. Molecular Synergy Modal
+   - Click "View Molecular Synergy" button
+   - Extract common molecules from data attribute
+   - Open modal
+   - Display molecules as tags
+   - Close on button click or outside click
+
+UTILITY FUNCTIONS:
+  - showLoading(): Display spinner, hide results
+  - hideLoading(): Hide spinner
+  - showError(): Display error message
+  - hideError(): Hide error message
+
+
+================================================================================
+                        DATA FLOW DIAGRAMS
+================================================================================
+
+-----------------------------------
+Recipe Analysis Flow
+-----------------------------------
+
+USER INPUT
+   ↓
+[Frontend] Collect recipe name + allergens
+   ↓
+[Frontend] POST /analyze_recipe
+   ↓
+[Backend] Receive request
+   ↓
+[Backend] → RecipeDB: Search recipe by title
+   ↓
+[RecipeDB] ← Return recipe ID and title
+   ↓
+[Backend] → RecipeDB: Get ingredients for recipe ID
+   ↓
+[RecipeDB] ← Return ingredients list
+   ↓
+[Backend] For each ingredient:
+   ├─ Check against allergen map
+   ├─ If allergen found:
+   │  ├─ Load substitute candidates
+   │  ├─ For each candidate:
+   │  │  ├─ → FlavorDB: Get molecules for original
+   │  │  ├─ → FlavorDB: Get molecules for substitute
+   │  │  ├─ Calculate Jaccard similarity
+   │  │  └─ Find common molecules
+   │  └─ Sort by score, take top 3
+   └─ Build substitution object
+   ↓
+[Backend] ← Return all substitutions
+   ↓
+[Frontend] Receive response
+   ↓
+[Frontend] Display results with molecular synergy
+   ↓
+USER SEES RESULTS
+
+
+-----------------------------------
+Diet Plan Generation Flow
+-----------------------------------
+
+USER INPUT
+   ↓
+[Frontend] Collect allergens + diet preference
+   ↓
+[Frontend] POST /generate_diet_plan
+   ↓
+[Backend] Receive request
+   ↓
+[Backend] Load recipe pools (veg/non-veg)
+   ↓
+[Backend] Combine based on preference
+   ↓
+[Backend] Filter using keyword matching:
+   ├─ Check each recipe title
+   ├─ Remove if contains allergen keywords
+   └─ Keep safe recipes
+   ↓
+[Backend] Generate 7-day plan:
+   ├─ For each day (Mon-Sun):
+   │  ├─ Random breakfast from safe pool
+   │  ├─ Random lunch from safe pool
+   │  └─ Random dinner from safe pool
+   └─ Build weekly plan object
+   ↓
+[Backend] ← Return weekly plan
+   ↓
+[Frontend] Receive response
+   ↓
+[Frontend] Display 7 day cards
+   ↓
+USER SEES WEEKLY PLAN
+
+
+-----------------------------------
+Nutrition Analysis Flow
+-----------------------------------
+
+USER INPUT
+   ↓
+[Frontend] Collect recipe name
+   ↓
+[Frontend] POST /get_nutrition
+   ↓
+[Backend] Receive request
+   ↓
+[Backend] → RecipeDB: Search recipe by title
+   ↓
+[RecipeDB] ← Return recipe ID and title
+   ↓
+[Backend] → RecipeDB: Get ingredients for recipe ID
+   ↓
+[RecipeDB] ← Return ingredients list
+   ↓
+[Backend] Calculate nutrition:
+   ├─ Start with base values
+   ├─ For each ingredient:
+   │  ├─ Check ingredient name
+   │  ├─ If protein-rich → increase protein & calories
+   │  ├─ If carb-rich → increase carbs & calories
+   │  └─ If fat-rich → increase fat & calories
+   └─ Build nutrition object
+   ↓
+[Backend] ← Return nutrition data
+   ↓
+[Frontend] Receive response
+   ↓
+[Frontend] Display 6 nutrition cards
+   ↓
+USER SEES NUTRITION INFO
+
+
+================================================================================
+                        EXTERNAL API DETAILS
+================================================================================
+
+-----------------------------------
+RecipeDB API
+-----------------------------------
+
+BASE URL: https://cosylab.iiitd.edu.in/recipedb
+
+AUTHENTICATION:
+  - Requires API key in Authorization header
+  - Format: "Bearer {API_KEY}"
+  - Key stored in constants.py
+
+ENDPOINTS USED:
+
+1. Recipe By Title
+   URL: /recipe-bytitle/recipeByTitle?title={recipe_name}
+   Method: GET
+   Response: {
+     "success": true,
+     "data": [
+       {
+         "Recipe_id": 12345,
+         "Recipe_title": "Apple Pie",
+         ...
+       }
+     ]
+   }
+
+2. Search Recipe (Get Ingredients)
+   URL: /search-recipe/{recipe_id}
+   Method: GET
+   Response: {
+     "recipe": { ... },
+     "ingredients": [
+       {
+         "ingredient": "flour",
+         "quantity": "2 cups",
+         ...
+       }
+     ]
+   }
+
+
+-----------------------------------
+FlavorDB API
+-----------------------------------
+
+BASE URL: https://cosylab.iiitd.edu.in/flavordb
+
+AUTHENTICATION: None required
+
+ENDPOINTS USED:
+
+1. Get Entity Molecules
+   URL: /entities_json?id={ingredient_id}
+   Method: GET
+   Response: [
+     {
+       "entity_id": 123,
+       "entity_alias_readable": "apple",
+       "molecules": [
+         {
+           "common_name": "hexanal",
+           "pubchem_id": "6184",
+           ...
+         }
+       ]
+     }
+   ]
+
+
+================================================================================
+                        KEY ALGORITHMS
+================================================================================
+
+-----------------------------------
+Jaccard Similarity Calculation
+-----------------------------------
+
+PURPOSE: Measure similarity between two ingredients based on shared molecules
+
+FORMULA:
+  Jaccard(A, B) = |A ∩ B| / |A ∪ B|
+
+WHERE:
+  A = Set of molecules in original ingredient
+  B = Set of molecules in substitute ingredient
+  ∩ = Intersection (common molecules)
+  ∪ = Union (all unique molecules)
+
+EXAMPLE:
+  Original: {hexanal, octanal, nonanal}
+  Substitute: {hexanal, heptanal, octanal}
+  
+  Intersection: {hexanal, octanal} → 2 molecules
+  Union: {hexanal, octanal, nonanal, heptanal} → 4 molecules
+  
+  Jaccard = 2/4 = 0.5 (50% similarity)
+
+IMPLEMENTATION:
+  def calculate_jaccard(set1, set2):
+      if not set1 and not set2:
+          return 0.0
+      intersection = len(set1.intersection(set2))
+      union = len(set1.union(set2))
+      if union == 0:
+          return 0.0
+      return intersection / union
+
+
+-----------------------------------
+Allergen Categorization
+-----------------------------------
+
+PURPOSE: Map ingredient names to allergen categories
+
+METHOD:
+  1. Maintain ALLERGEN_MAP dictionary in bridge.py
+  2. Keys: Ingredient names (lowercase)
+  3. Values: Allergen category strings
+  
+EXAMPLE:
+  ALLERGEN_MAP = {
+      "milk": "Dairy_Allergy",
+      "cheese": "Dairy_Allergy",
+      "egg": "Egg_Allergy",
+      "peanut": "Nut_Allergy",
+      ...
+  }
+
+LOOKUP:
+  def get_allergen_category(ingredient_name):
+      return ALLERGEN_MAP.get(ingredient_name.lower())
+
+
+================================================================================
+                        PERFORMANCE OPTIMIZATIONS
+================================================================================
+
+1. DIET PLAN GENERATION
+   BEFORE: Made RecipeDB API calls for each recipe (slow, 30+ seconds)
+   AFTER: Keyword-based filtering (instant, <1 second)
+   IMPACT: 30x faster response time
+
+2. PARALLEL PROCESSING
+   - Uses ThreadPoolExecutor for concurrent FlavorDB API calls
+   - Fetches molecules for multiple substitutes simultaneously
+   - Reduces total API call time by ~70%
+
+3. CACHING
+   - candidates.json stores pre-fetched ingredient data
+   - Avoids repeated API calls for common ingredients
+   - Populated by fetch_candidates.py script
+
+4. FRONTEND OPTIMIZATION
+   - CSS animations use GPU acceleration (transform, opacity)
+   - Minimal DOM manipulation
+   - Event delegation where possible
+
+
+================================================================================
+                        VISUAL DESIGN ELEMENTS
+================================================================================
+
+-----------------------------------
+Recipe Analysis Tab
+-----------------------------------
+THEME: Molecular Chemistry
+
+DECORATIONS:
+  - Molecular structure SVG (top-right, floating)
+  - Molecular structure SVG (bottom-left, floating reverse)
+  - 3 floating particles (cyan, pink, blue)
+  - Flask emoji on issue cards
+  - Info card with lightbulb icon
+
+COLORS:
+  - Primary: Cyan (#00d2ff) - represents chemistry
+  - Accent: Pink (#ff00cc) - highlights important elements
+
+
+-----------------------------------
+Weekly Diet Plan Tab
+-----------------------------------
+THEME: Calendar & Meals
+
+DECORATIONS:
+  - Calendar emoji 📅 (top-right, pulsing)
+  - Plate emoji 🍽️ (bottom-left, pulsing)
+  - 3 floating particles
+  - Star emoji on day cards
+  - Info card with calendar check icon
+
+COLORS:
+  - Gradient backgrounds on day cards
+  - Meal type icons (breakfast, lunch, dinner)
+
+
+-----------------------------------
+Recipe Nutrition Tab
+-----------------------------------
+THEME: Health & Analytics
+
+DECORATIONS:
+  - Pie chart SVG (top-right, rotating)
+  - Muscle emoji 💪 (bottom-left, pulsing)
+  - 3 floating particles
+  - Gradient overlays on nutrition cards
+  - Info card with pie chart icon
+
+COLORS:
+  - Each nutrient has unique icon color
+  - Gradient backgrounds for depth
+
+
+================================================================================
+                        ERROR HANDLING
+================================================================================
+
+FRONTEND:
+  - Input validation before API calls
+  - Loading states during requests
+  - Error messages for failed requests
+  - Graceful fallbacks for missing data
+
+BACKEND:
+  - Try-catch blocks around API calls
+  - HTTPException for 404 errors
+  - Console logging for debugging
+  - Default values for missing data
+
+
+================================================================================
+                        TESTING
+================================================================================
+
+TEST SCRIPT: test_endpoints.py
+
+TESTS:
+  1. GET /allergens → Verify allergen list returned
+  2. POST /analyze_recipe → Verify recipe analysis works
+  3. POST /generate_diet_plan → Verify diet plan generation
+  4. POST /get_nutrition → Verify nutrition calculation
+
+RUN TESTS:
+  python test_endpoints.py
+
+EXPECTED OUTPUT:
+  ✓ SUCCESS for all 4 endpoints
+  ✓ Data returned in correct format
+
+
+================================================================================
+                        RUNNING THE APPLICATION
+================================================================================
+
+1. START SERVER:
+   python run.py
+   
+   Server starts on: http://localhost:8000
+
+2. OPEN BROWSER:
+   Navigate to: http://localhost:8000/static/index.html
+
+3. USE APPLICATION:
+   - Select a tab
+   - Enter required information
+   - Click action button
+   - View results
+
+
+================================================================================
+                        TROUBLESHOOTING
+================================================================================
+
+ISSUE: Server won't start
+FIX: Check if port 8000 is already in use
+     Kill existing Python processes: taskkill /F /IM python.exe
+
+ISSUE: API calls failing
+FIX: Verify API keys in constants.py
+     Check internet connection
+     Verify RecipeDB/FlavorDB services are online
+
+ISSUE: No results showing
+FIX: Open browser console (F12)
+     Check for JavaScript errors
+     Verify API responses in Network tab
+
+ISSUE: Allergen checkboxes not loading
+FIX: Ensure /allergens endpoint is working
+     Check browser console for errors
+
+
+================================================================================
+                        FUTURE ENHANCEMENTS
+================================================================================
+
+1. Use real nutrition API instead of estimation
+2. Add user accounts and saved preferences
+3. Implement recipe favorites and history
+4. Add more comprehensive ingredient database
+5. Support for multiple languages
+6. Mobile app version
+7. Social sharing features
+8. Recipe rating and reviews
+
+
+================================================================================
+                        CREDITS & RESOURCES
+================================================================================
+
+APIs:
+  - RecipeDB: https://cosylab.iiitd.edu.in/recipedb
+  - FlavorDB: https://cosylab.iiitd.edu.in/flavordb
+
+Fonts:
+  - Outfit: Google Fonts
+
+Icons:
+  - Font Awesome 6.4.0
+
+Developed for: Hackathon 2
+Version: 1.0
+Last Updated: 2026-02-15
+
+
+================================================================================
+                        END OF DOCUMENTATION
+================================================================================

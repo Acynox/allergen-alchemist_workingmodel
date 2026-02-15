@@ -1,0 +1,30 @@
+["recipe_id", "calories", "cook_time", "prep_time", "servings", "recipe_title", "total_time", "url", "region", "sub_region", "continent", "source", "img_url", "carbohydrate, by difference (g)", "energy (kcal)", "protein (g)", "total lipid (fat) (g)", "processes", "vegan", "pescetarian", "ovo_vegetarian", "lacto_vegetarian", "ovo_lacto_vegetarian", "utensils", "calorie_partition"]
+
+Sample:
+{
+  "recipe_id": 143107,
+  "calories": 959.1,
+  "cook_time": "0",
+  "prep_time": "0",
+  "servings": "06-Aug",
+  "recipe_title": "Carla Hall's Cranberry Apple Pie",
+  "total_time": "70",
+  "url": "http://www.geniuskitchen.com/recipe/carla-halls-cranberry-apple-pie-466406",
+  "region": "Canadian",
+  "sub_region": "Canadian",
+  "continent": "North American",
+  "source": "Geniuskitchen",
+  "img_url": "https://geniuskitchen.sndimg.com/gk/img/gk-shareGraphic.png",
+  "carbohydrate, by difference (g)": 297.9542,
+  "energy (kcal)": 2387.7427,
+  "protein (g)": 51.2495,
+  "total lipid (fat) (g)": 120.3182,
+  "processes": "stir||place||combine||pour||mix||separate||wrap||prick||bake||cool||stir||stir||stir||fill||crumble||place||process||add||sprinkle||bake",
+  "vegan": "0.0",
+  "pescetarian": "0.0",
+  "ovo_vegetarian": "0.0",
+  "lacto_vegetarian": "0.0",
+  "ovo_lacto_vegetarian": "0.0",
+  "utensils": "cup||bowl||bowl||mixer||dish||fork||bowl||bowl||processor",
+  "calorie_partition": "p4"
+}
